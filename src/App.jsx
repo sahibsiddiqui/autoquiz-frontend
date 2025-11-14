@@ -1,5 +1,5 @@
 import { useState } from "react";
-import MCQcard from "./components/MCQcard";
+import MCQCard from "./components/MCQCard";
 
 export default function App() {
   const [text, setText] = useState("");
@@ -107,7 +107,7 @@ export default function App() {
       {/* MCQ Output */}
       <div className="mt-8 w-full max-w-3xl space-y-6">
         {questions.map((q, i) => (
-          <MCQcard key={i} q={q} index={i} />
+          <MCQCard key={i} q={q} index={i} />
         ))}
       </div>
     </div>

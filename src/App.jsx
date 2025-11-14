@@ -1,6 +1,8 @@
 import { useState } from "react";
 import MCQCard from "./components/MCQCard";
 
+const BACKEND_URL = "https://autoquiz-backend-x434.onrender.com";
+
 export default function App() {
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
@@ -8,17 +10,24 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const BACKEND_URL = "https://autoquiz-backend-x434.onrender.com";
+  const parseMCQs = (rawText) => {
+    return rawText.split("\n\n").map((block) => {
+      const lines = block.split("\n");
+      const questionLine = lines.find((l) => l.startsWith("Q:"));
+      const optionLines = lines.filter((l) => /^[A-D]\)/.test(l));
+      const answerLine = lines.find((l) => l.startsWith("Correct:"));
+
+      return {
+        question: questionLine?.replace("Q: ", "") || "",
+        options: optionLines.map((l) => l.trim()) || [],
+        answer: answerLine?.replace("Correct: ", "") || "",
+      };
+    });
+  };
 
   const handleGenerateText = async () => {
-    if (!text.trim()) {
-      setError("Please enter some text first.");
-      return;
-    }
-
-    setError("");
-    setLoading(true);
-    setQuestions([]);
+    if (!text.trim()) return setError("Please enter some text first.");
+    setError(""); setLoading(true); setQuestions([]);
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/generate-mcqs`, {
@@ -29,24 +38,19 @@ export default function App() {
 
       const data = await res.json();
 
-      if (data.mcqs) setQuestions(data.mcqs);
-      else setError("Failed to generate MCQs.");
+      if (data.mcqs) {
+        setQuestions(parseMCQs(data.mcqs[0]));
+      } else setError("Failed to generate MCQs.");
     } catch (err) {
-      setError("Server unreachable. Is the backend running?");
+      setError("Backend unreachable. Is it deployed?");
     }
 
     setLoading(false);
   };
 
   const handleGeneratePDF = async () => {
-    if (!file) {
-      setError("Please select a PDF first.");
-      return;
-    }
-
-    setError("");
-    setLoading(true);
-    setQuestions([]);
+    if (!file) return setError("Please select a PDF first.");
+    setError(""); setLoading(true); setQuestions([]);
 
     try {
       const formData = new FormData();
@@ -59,10 +63,10 @@ export default function App() {
 
       const data = await res.json();
 
-      if (data.mcqs) setQuestions(data.mcqs);
+      if (data.mcqs) setQuestions(parseMCQs(data.mcqs[0]));
       else setError("Failed to generate MCQs from PDF.");
     } catch (err) {
-      setError("Server unreachable. Is the backend running?");
+      setError("Backend unreachable. Is it deployed?");
     }
 
     setLoading(false);

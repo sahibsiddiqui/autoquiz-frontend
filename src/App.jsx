@@ -1,5 +1,5 @@
 import { useState } from "react";
-import MCQCard from "./components/MCQcard";
+import MCQcard from "./components/MCQcard";
 
 export default function App() {
   const [text, setText] = useState("");

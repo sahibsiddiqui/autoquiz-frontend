@@ -107,7 +107,7 @@ export default function App() {
       {/* MCQ Output */}
       <div className="mt-8 w-full max-w-3xl space-y-6">
         {questions.map((q, i) => (
-          <MCQCard key={i} q={q} index={i} />
+          <MCQcard key={i} q={q} index={i} />
         ))}
       </div>
     </div>
